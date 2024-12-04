@@ -1,3 +1,6 @@
+using backend.Application;
+using backend.Infrastructure;
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<CoffeeHandler>();
+builder.Services.AddSingleton<CoffeeQuery>();
 
 var app = builder.Build();
 

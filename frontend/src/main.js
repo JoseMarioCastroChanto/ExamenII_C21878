@@ -1,12 +1,10 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import { createRouter, createWebHistory} from "vue-router";
+import router from './router' 
+
+const app = createApp(App);
+app.use(router)
+app.config.globalProperties.$backendAddress = 'https://localhost:7116/';
 
 
-const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-    ],
-});
-
-createApp(App).use(router).mount('#app')
+app.mount('#app'); 
