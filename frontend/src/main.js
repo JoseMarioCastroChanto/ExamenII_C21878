@@ -4,7 +4,7 @@ import router from './router'
 
 const app = createApp(App);
 app.use(router)
-app.config.globalProperties.$backendAddress = 'https://localhost:7263/';
+app.config.globalProperties.$backendAddress = 'https://localhost:7116/';
 
 
 app.mount('#app'); 
