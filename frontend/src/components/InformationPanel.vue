@@ -8,6 +8,9 @@
       <div v-if="order.length > 0">
         <h4>Total: ₡{{ totalCost }}</h4>
       </div>
+      <div>
+        <h4>Fondos: ₡{{ totalPaid }}</h4>
+      </div>
       <div v-if="outOfService" class="alert alert-danger mt-3">
         La máquina está fuera de servicio.
       </div>
@@ -19,7 +22,7 @@
   
   <script>
   export default {
-    props: ["totalCost", "order", "status", "outOfService"],
+    props: ["totalCost","order", "status", "outOfService", "totalPaid"],
   };
   </script>
   

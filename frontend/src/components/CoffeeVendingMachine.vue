@@ -10,6 +10,7 @@
           :order="order" 
           :status="status" 
           :outOfService="outOfService"
+          :totalPaid="totalPaid"
         />
         <div class="btn-group d-flex flex-wrap">
           <button 
@@ -90,6 +91,9 @@
                     this.status = outOfStockMessage + `${coffee.name}`;
                 }
             });
+        },
+        addPayment(value){
+            this.totalPaid=this.totalPaid+value;
         }
     },
     mounted() {
