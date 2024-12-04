@@ -5,7 +5,12 @@
       </div>
       
       <div class="col-md-6">
-        <!-- TODO InformationPanel -->
+        <InformationPanel 
+          :totalCost="totalCost" 
+          :order="order" 
+          :status="status" 
+          :outOfService="outOfService"
+        />
         <div class="btn-group d-flex flex-wrap">
           <button 
             v-for="(value, index) in [500, 100, 50, 25]" 
@@ -38,35 +43,57 @@
   <script>
   import axios from "axios";
   import CoffeeList from "@/components/CoffeeList.vue";
-
+  import InformationPanel from "@/components/InformationPanel.vue";
+  const defaultValue = 0;
+  const cofeeFetchErrorMessage = "Error al obtener datos de café";
+  const outOfStockMessage = "Error: no hay suficientes existencias para ";
   
   export default {
     components: {
       CoffeeList,
+      InformationPanel,
     },
     data() {
       return {
         coffees: [],
         order: [],
         totalPaid: 0,
-        status: "Esperando compra...",
-        outOfService: false, 
+        outOfService: false,
+        status:"" 
       };
     },
     methods: {
-      fetchCafes() {
-        axios
-            .get(this.$backendAddress + "api/Coffee")
-            .then((response) => {
-                this.coffees = response.data;
-            })
-            .catch(() => {
-                this.status="Error al obtener datos de café"
-            });    
-      },
+        fetchCoffees() {
+            axios
+                .get(this.$backendAddress + "api/Coffee")
+                .then((response) => {
+                    this.coffees = response.data;
+                })
+                .catch(() => {
+                    this.status=cofeeFetchErrorMessage;
+                });    
+        },
+
+        updateOrder() {
+            this.validateOrder();
+            this.order = this.coffees.filter(coffee => coffee.quantity > 0);
+            this.totalCost = this.order.reduce(
+                (total, coffee) => total + coffee.quantity * coffee.price,
+                0
+            );
+        },
+        validateOrder(){
+            this.status = "";
+            this.coffees.forEach(coffee => {
+                if (coffee.quantity > coffee.available) {
+                    coffee.quantity = defaultValue; 
+                    this.status = outOfStockMessage + `${coffee.name}`;
+                }
+            });
+        }
     },
     mounted() {
-      this.fetchCafes();
+      this.fetchCoffees();
     },
   };
   </script>

@@ -17,7 +17,7 @@
                 v-model.number="coffee.quantity"
                 min="0"
                 :max="coffee.available"
-                @change="updateOrder(coffee)"
+                @change="updateOrder()"
               />
             </div>
             <div class="availability-info ms-3">
@@ -28,7 +28,6 @@
             </div>
           </div>
         </div>
-        <div class="triangle"></div>
       </div>
     </div>
   </template>
@@ -103,18 +102,6 @@
     color: black;
     font-size: 0.9rem;
     font-weight: bold;
-  }
-  
-  .triangle {
-    position: absolute;
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-top: 8px solid #a6744c;
   }
   
   .form-label {

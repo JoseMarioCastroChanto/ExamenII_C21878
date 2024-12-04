@@ -1,7 +1,5 @@
 <template>
     <div class="info-panel">
-      <h3>Información de la Orden</h3>
-      <p v-if="order.length === 0">No hay orden aún.</p>
       <ul v-if="order.length > 0" class="list-group">
         <li v-for="(coffee, index) in order" :key="index" class="list-group-item">
           {{ coffee.name }} x {{ coffee.quantity }} - ₡{{ coffee.quantity * coffee.price }}
@@ -13,7 +11,7 @@
       <div v-if="outOfService" class="alert alert-danger mt-3">
         La máquina está fuera de servicio.
       </div>
-      <div v-if="status" class="alert mt-3" :class="status.includes('exitosa') ? 'alert-success' : 'alert-danger'">
+      <div v-if="status != ''" class="alert-danger">
         <strong>{{ status }}</strong>
       </div>
     </div>
@@ -29,5 +27,9 @@
   .info-panel {
     padding: 20px;
     background-color: #f8f9fa;
+    width: 580px; 
+    height: 200px; 
+    overflow-y: auto; 
+    border: 1px solid #ddd;
   }
   </style>
