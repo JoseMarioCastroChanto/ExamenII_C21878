@@ -11,6 +11,8 @@
           :status="status" 
           :outOfService="outOfService"
           :totalPaid="totalPaid"
+          :cashChange="cashChange"
+          :cashChangeView="cashChangeView"
         />
         <div class="btn-group d-flex flex-wrap">
           <button 
@@ -29,13 +31,23 @@
           >
             ₡1000
           </button>
+          <div v-if="!cashChangeView" class="d-flex flex-column">
           <button 
             class="btn btn-buy" 
             @click="makePurchase" 
-            :disabled="outOfService || totalCost === 0"
+            :disabled="totalCost === 0"
           >
             Comprar
           </button>
+          </div>
+          <div v-if="cashChangeView" class="d-flex flex-column">
+          <button 
+            class="btn btn-buy" 
+            @click="takeChange" 
+          >
+            Tomar vuelto
+          </button>
+          </div>
         </div>
       </div>
     </div>
@@ -63,7 +75,9 @@
         totalPaid: 0,
         paymentWay: [0,0,0,0,0],
         outOfService: false,
-        status:"" 
+        status:"", 
+        cashChange:[],
+        cashChangeView: false
       };
     },
     methods: {
@@ -79,7 +93,7 @@
         },
 
         updateOrder() {
-          if(!this.outOfService){
+          if(!this.outOfService && !this.cashChangeView){
             this.validateOrder();
             this.order = this.coffees.filter(coffee => coffee.quantity > 0);
             this.totalCost = this.order.reduce(
@@ -98,7 +112,7 @@
             });
         },
         addPayment(value){
-          if(!this.outOfService){
+          if(!this.outOfService && !this.cashChangeView){
            this.status = "";
             this.totalPaid=this.totalPaid+value;
             for (let i = 0; i<moneyAccepted.length; i ++){
@@ -109,7 +123,7 @@
           }  
         },
         makePurchase(){ 
-          if(!this.outOfService){
+          if(!this.outOfService && !this.cashChangeView){
           this.status = "";
           if(this.totalPaid < this.totalCost){
             this.status = insufficientFoundsMessage;
@@ -120,16 +134,25 @@
                   coffeeId: this.order.map(item =>  item.id),
                   coffeeQuantity: this.order.map(item => item.quantity),
               };
-                console.log(paymentData);
               axios
                   .put(this.$backendAddress + "api/Payment", paymentData)
                   .then((response) => {
-                      console.log(response.data);
+                      this.cashChange=response.data;
+                      this.cashChangeView = true;
                       this.totalPaid = 0;
+                      this.totalCost = 0;
+                      this.order = [];
+                      this.paymentWay = [0,0,0,0,0];
                       this.fetchCoffees(); 
                       this.isOutOfService(); 
                   })
                   .catch((exception) => {
+                      this.totalPaid = 0;
+                      this.totalCost = 0;
+                      this.order = [];
+                      this.paymentWay = [0,0,0,0,0];
+                      this.fetchCoffees(); 
+                      this.isOutOfService();
                       this.status = exception.response?.data?.message;
                   });
             }
@@ -149,6 +172,10 @@
                   this.status=exception;
                 });   
 
+        },
+        takeChange(){
+          this.cashChangeView = false;
+          this.cashChange = [];
         }
             
     },
