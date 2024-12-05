@@ -3,15 +3,21 @@ using backend.Infrastructure;
 
 namespace backend.Application
 {
-    public class PaymentCommand
+    public interface IPaymentCommand
     {
-        private readonly PaymentQuery _paymentQuery;
-        private readonly CoffeeCommand _coffeeCommand;
-        private readonly PaymentHandler _paymentHandler;
+        CashChangeModel PaymentTransaction(PaymentModel payment);
+        CashChangeModel CalculateChange(int changeRequired, Dictionary<int, int> existingChange, int[] paymentWay);
+    }
+
+    public class PaymentCommand: IPaymentCommand
+    {
+        private readonly IPaymentQuery _paymentQuery;
+        private readonly ICoffeeCommand _coffeeCommand;
+        private readonly IPaymentHandler _paymentHandler;
         const string outOfStock = "Error: No hay suficiente stock de café para completar la orden.";
         const string outOfChange = "Fallo al realizar la compra.";
 
-        public PaymentCommand(PaymentQuery paymentQuery, CoffeeCommand coffeeCommand, PaymentHandler paymentHandler)
+        public PaymentCommand(IPaymentQuery paymentQuery, ICoffeeCommand coffeeCommand, IPaymentHandler paymentHandler)
         {
             _paymentQuery = paymentQuery;
             _coffeeCommand = coffeeCommand;

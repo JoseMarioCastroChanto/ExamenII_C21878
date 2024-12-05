@@ -4,7 +4,13 @@ using backend.Domain;
 
 namespace backend.Infrastructure
 {
-    public class CoffeeHandler
+    public interface ICoffeeHandler
+    {
+        List<CoffeeModel> GetCoffees();
+        List<(int CoffeeId, int Available)> CoffeeExistence(int[] coffeeIds);
+        void UpdateCoffeeAvailability(int[] CoffeeId, int[] Quantity);
+    }
+    public class CoffeeHandler: ICoffeeHandler
     {
         private List<CoffeeModel> _coffees = new List<CoffeeModel>
         {

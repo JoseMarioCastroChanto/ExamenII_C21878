@@ -8,11 +8,11 @@ namespace backend.API
     [ApiController]
     public class PaymentController : ControllerBase
     {
-        private  PaymentCommand _command;
-        private PaymentQuery _query;
+        private  IPaymentCommand _command;
+        private IPaymentQuery _query;
 
 
-        public PaymentController(PaymentCommand command, PaymentQuery query)
+        public PaymentController(IPaymentCommand command, IPaymentQuery query)
         {
             _command = command;
             _query = query;

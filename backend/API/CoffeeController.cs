@@ -10,9 +10,9 @@ namespace backend.API
     [ApiController]
     public class CoffeeController : ControllerBase
     {
-        private  CoffeeQuery _query;
+        private  ICoffeeQuery _query;
 
-        public CoffeeController(CoffeeQuery query)
+        public CoffeeController(ICoffeeQuery query)
         {
             _query = query;
         }
