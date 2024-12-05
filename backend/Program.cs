@@ -18,8 +18,13 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<CoffeeCommand>();
 builder.Services.AddSingleton<CoffeeHandler>();
 builder.Services.AddSingleton<CoffeeQuery>();
+builder.Services.AddSingleton<PaymentHandler>();
+builder.Services.AddSingleton<PaymentCommand>();
+builder.Services.AddSingleton<PaymentQuery>();
+
 
 var app = builder.Build();
 
