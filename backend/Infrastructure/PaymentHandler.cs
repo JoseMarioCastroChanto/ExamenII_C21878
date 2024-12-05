@@ -17,10 +17,10 @@ namespace backend.Infrastructure
             moneyInventory = new Dictionary<int, int>
             {   
                 { 1000, 0 },
-                { 500, 0 }, 
-                { 100, 0 }, 
-                { 50, 1 },  
-                { 25, 0 }  
+                { 500, 20 }, 
+                { 100, 30 }, 
+                { 50, 50 },  
+                { 25, 25 }  
             };
         }
 
