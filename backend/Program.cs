@@ -1,3 +1,6 @@
+using backend.Application;
+using backend.Infrastructure;
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,22 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSingleton<IPaymentCommand, PaymentCommand>();
+builder.Services.AddSingleton<IPaymentQuery, PaymentQuery>();
+builder.Services.AddSingleton<ICoffeeCommand, CoffeeCommand>();
+builder.Services.AddSingleton<ICoffeeQuery, CoffeeQuery>();
+builder.Services.AddSingleton<IPaymentHandler, PaymentHandler>();
+builder.Services.AddSingleton<ICoffeeHandler, CoffeeHandler>();
+
+
+builder.Services.AddSingleton<CoffeeCommand>();
+builder.Services.AddSingleton<CoffeeHandler>();
+builder.Services.AddSingleton<CoffeeQuery>();
+builder.Services.AddSingleton<PaymentHandler>();
+builder.Services.AddSingleton<PaymentCommand>();
+builder.Services.AddSingleton<PaymentQuery>();
+
 
 var app = builder.Build();
 
