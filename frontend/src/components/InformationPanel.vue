@@ -24,6 +24,9 @@
             de ₡{{ item.moneyValue }}
         </li>
         </ul>
+        <div v-if="!outOfService" class="alert alert-success mt-3">
+            Compra realizada con éxito.
+        </div>
       </div>  
       <div v-if="outOfService" class="alert alert-danger mt-3">
         La máquina está fuera de servicio.

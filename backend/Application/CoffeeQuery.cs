@@ -4,11 +4,16 @@ using backend.Domain;
 
 namespace backend.Application
 {
-    public class CoffeeQuery
+    public interface ICoffeeQuery
     {
-        private readonly CoffeeHandler _coffeeHandler;
+        List<CoffeeModel> GetCoffees();
+        List<(int CoffeeId, int Available)> CheckCoffeeExistence(int[] coffeeIds);
+    }
+    public class CoffeeQuery: ICoffeeQuery
+    {
+        private readonly ICoffeeHandler _coffeeHandler;
 
-        public CoffeeQuery(CoffeeHandler coffeeHandler)
+        public CoffeeQuery(ICoffeeHandler coffeeHandler)
         {
             _coffeeHandler = coffeeHandler;
         }

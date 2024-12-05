@@ -3,15 +3,21 @@ using backend.Infrastructure;
 
 namespace backend.Application
 {
-    public class PaymentCommand
+    public interface IPaymentCommand
     {
-        private readonly PaymentQuery _paymentQuery;
-        private readonly CoffeeCommand _coffeeCommand;
-        private readonly PaymentHandler _paymentHandler;
+        CashChangeModel PaymentTransaction(PaymentModel payment);
+        CashChangeModel CalculateChange(int changeRequired, Dictionary<int, int> existingChange, int[] paymentWay);
+    }
+
+    public class PaymentCommand: IPaymentCommand
+    {
+        private readonly IPaymentQuery _paymentQuery;
+        private readonly ICoffeeCommand _coffeeCommand;
+        private readonly IPaymentHandler _paymentHandler;
         const string outOfStock = "Error: No hay suficiente stock de café para completar la orden.";
         const string outOfChange = "Fallo al realizar la compra.";
 
-        public PaymentCommand(PaymentQuery paymentQuery, CoffeeCommand coffeeCommand, PaymentHandler paymentHandler)
+        public PaymentCommand(IPaymentQuery paymentQuery, ICoffeeCommand coffeeCommand, IPaymentHandler paymentHandler)
         {
             _paymentQuery = paymentQuery;
             _coffeeCommand = coffeeCommand;
@@ -58,17 +64,10 @@ namespace backend.Application
                 return change;
             }
 
-            int totalAvailableChange = CalculateTotalAvailableChange(existingChange, paymentWay, denominations);
-
-            if (totalAvailableChange < changeRequired)
-            {
-                return new CashChangeModel(); 
-            }
-
             int index = 0;
-            changeRequired = AddChangeFromExistingChange(ref changeRequired, existingChange, change, ref index);
+            AddChangeFromPaymentWay(ref changeRequired, paymentWay, denominations, change, ref index); 
+            AddChangeFromExistingChange(ref changeRequired, existingChange, change, ref index);
 
-            AddChangeFromPaymentWay(ref changeRequired, paymentWay, denominations, change, ref index);
             if (changeRequired > 0)
             {
                 return new CashChangeModel();
@@ -77,13 +76,28 @@ namespace backend.Application
             return change;
         }
 
-        private int CalculateTotalAvailableChange(Dictionary<int, int> existingChange, int[] paymentWay, int[] denominations)
+        private void AddChangeFromPaymentWay(ref int changeRequired, int[] paymentWay, int[] denominations, CashChangeModel change, ref int index)
         {
-            return existingChange.Sum(c => c.Key * c.Value) +
-                   paymentWay.Select((quantity, i) => quantity * denominations[i]).Sum();
-        }
+            for (int i = 0; i < paymentWay.Length; i++)
+            {
+                if (changeRequired <= 0) break;
 
-        private int AddChangeFromExistingChange(ref int changeRequired, Dictionary<int, int> existingChange, CashChangeModel change, ref int index)
+                int moneyValue = denominations[i];
+                int availableQuantity = paymentWay[i];
+                int moneyCount = Math.Min(changeRequired / moneyValue, availableQuantity);
+
+                if (moneyCount > 0)
+                {
+                    if (index >= change.MoneyValue.Length) break;
+
+                    change.MoneyValue[index] = moneyValue;
+                    change.Quantity[index] = moneyCount;
+                    index++;
+                    changeRequired -= moneyCount * moneyValue;
+                }
+            }
+        }
+        private void AddChangeFromExistingChange(ref int changeRequired, Dictionary<int, int> existingChange, CashChangeModel change, ref int index)
         {
             foreach (var money in existingChange.OrderByDescending(c => c.Key))
             {
@@ -104,29 +118,7 @@ namespace backend.Application
                 }
             }
 
-            return changeRequired;
         }
 
-        private void AddChangeFromPaymentWay(ref int changeRequired, int[] paymentWay, int[] denominations, CashChangeModel change, ref int index)
-        {
-            for (int i = 0; i < paymentWay.Length; i++)
-            {
-                if (changeRequired <= 0) break;
-
-                int moneyValue = denominations[i];
-                int availableQuantity = paymentWay[i];
-                int moneyCount = Math.Min(changeRequired / moneyValue, availableQuantity);
-
-                if (moneyCount > 0)
-                {
-                    if (index >= change.MoneyValue.Length) break;  
-
-                    change.MoneyValue[index] = moneyValue;
-                    change.Quantity[index] = moneyCount;
-                    index++;
-                    changeRequired -= moneyCount * moneyValue;
-                }
-            }
-        }
     }
 }

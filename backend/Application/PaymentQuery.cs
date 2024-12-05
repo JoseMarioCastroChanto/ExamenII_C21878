@@ -3,11 +3,17 @@ using backend.Infrastructure;
 
 namespace backend.Application
 {
-    public class PaymentQuery
+    public interface IPaymentQuery
     {
-        private readonly PaymentHandler _paymentHandler;
+        bool OutOfChange();
+        Dictionary<int, int> GetExistingChange();
+    }
 
-        public PaymentQuery(PaymentHandler paymentHandler)
+    public class PaymentQuery: IPaymentQuery
+    {
+        private readonly IPaymentHandler _paymentHandler;
+
+        public PaymentQuery(IPaymentHandler paymentHandler)
         {
             _paymentHandler = paymentHandler;
         }

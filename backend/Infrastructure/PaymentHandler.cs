@@ -2,7 +2,13 @@
 
 namespace backend.Infrastructure
 {
-    public class PaymentHandler
+    public interface IPaymentHandler
+    {
+        bool OutOfChange();
+        Dictionary<int, int> GetExistingChange();
+        void UpdateChangeExistence(CashChangeModel change, int[] PaymentWay);
+    }
+    public class PaymentHandler: IPaymentHandler
     {
         private Dictionary<int, int> moneyInventory;
 
