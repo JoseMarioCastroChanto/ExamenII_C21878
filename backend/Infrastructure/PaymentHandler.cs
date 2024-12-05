@@ -26,7 +26,9 @@ namespace backend.Infrastructure
 
         public bool OutOfChange()
         {
-            return moneyInventory.Values.All(value => value == 0);
+            bool allZeroExcept1000 = moneyInventory.Where(kvp => kvp.Key != 1000)
+                                       .All(kvp => kvp.Value == 0);
+            return allZeroExcept1000;
         }
 
         public Dictionary<int, int> GetExistingChange()
