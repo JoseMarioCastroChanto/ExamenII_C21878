@@ -5,10 +5,10 @@
           {{ coffee.name }} x {{ coffee.quantity }} - ₡{{ coffee.quantity * coffee.price }}
         </li>
       </ul>
-      <div v-if="order.length > 0">
+      <div v-if="order.length > 0" class="list-group-item">
         <h4>Total: ₡{{ totalCost }}</h4>
       </div>
-      <div>
+      <div class="list-group-item">
         <h4>Fondos: ₡{{ totalPaid }}</h4>
       </div>
       <div v-if="outOfService" class="alert alert-danger mt-3">

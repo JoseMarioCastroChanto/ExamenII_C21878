@@ -48,6 +48,8 @@
   const defaultValue = 0;
   const cofeeFetchErrorMessage = "Error al obtener datos de café";
   const outOfStockMessage = "Error: no hay suficientes existencias para ";
+  const insufficientFoundsMessage = "Fondos insuficientes ";
+  const moneyAccepted = [1000,500,100,50,25]
   
   export default {
     components: {
@@ -59,6 +61,7 @@
         coffees: [],
         order: [],
         totalPaid: 0,
+        paymentWay: [0,0,0,0,0],
         outOfService: false,
         status:"" 
       };
@@ -76,12 +79,14 @@
         },
 
         updateOrder() {
+          if(!this.outOfService){
             this.validateOrder();
             this.order = this.coffees.filter(coffee => coffee.quantity > 0);
             this.totalCost = this.order.reduce(
                 (total, coffee) => total + coffee.quantity * coffee.price,
                 0
             );
+          }
         },
         validateOrder(){
             this.status = "";
@@ -93,11 +98,63 @@
             });
         },
         addPayment(value){
+          if(!this.outOfService){
+           this.status = "";
             this.totalPaid=this.totalPaid+value;
+            for (let i = 0; i<moneyAccepted.length; i ++){
+              if(value === moneyAccepted[i]){
+                this.paymentWay[i]++;
+              }
+            }   
+          }  
+        },
+        makePurchase(){ 
+          if(!this.outOfService){
+          this.status = "";
+          if(this.totalPaid < this.totalCost){
+            this.status = insufficientFoundsMessage;
+          }else{
+            const paymentData = {
+                  cashChange: this.totalPaid - this.totalCost,
+                  paymentWay: this.paymentWay, 
+                  coffeeId: this.order.map(item =>  item.id),
+                  coffeeQuantity: this.order.map(item => item.quantity),
+              };
+                console.log(paymentData);
+              axios
+                  .put(this.$backendAddress + "api/Payment", paymentData)
+                  .then((response) => {
+                      console.log(response.data);
+                      this.totalPaid = 0;
+                      this.fetchCoffees(); 
+                      this.isOutOfService(); 
+                  })
+                  .catch((exception) => {
+                      this.status = exception.response?.data?.message;
+                  });
+            }
+          }
+        },
+        isOutOfService(){
+          axios
+                .get(this.$backendAddress + "api/Payment")
+                .then((response) => {
+                    if(response.data === true){
+                      this.outOfService = true;
+                    }else{
+                      this.outOfService = false;
+                    }
+                })
+                .catch((exception) => {
+                  this.status=exception;
+                });   
+
         }
+            
     },
     mounted() {
       this.fetchCoffees();
+      this.isOutOfService();
     },
   };
   </script>
