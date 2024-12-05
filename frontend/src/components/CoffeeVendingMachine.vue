@@ -10,6 +10,9 @@
           :order="order" 
           :status="status" 
           :outOfService="outOfService"
+          :totalPaid="totalPaid"
+          :cashChange="cashChange"
+          :cashChangeView="cashChangeView"
         />
         <div class="btn-group d-flex flex-wrap">
           <button 
@@ -28,13 +31,23 @@
           >
             ₡1000
           </button>
+          <div v-if="!cashChangeView" class="d-flex flex-column">
           <button 
             class="btn btn-buy" 
             @click="makePurchase" 
-            :disabled="outOfService || totalCost === 0"
+            :disabled="totalCost === 0"
           >
             Comprar
           </button>
+          </div>
+          <div v-if="cashChangeView" class="d-flex flex-column">
+          <button 
+            class="btn btn-buy" 
+            @click="takeChange" 
+          >
+            Tomar vuelto
+          </button>
+          </div>
         </div>
       </div>
     </div>
@@ -47,6 +60,8 @@
   const defaultValue = 0;
   const cofeeFetchErrorMessage = "Error al obtener datos de café";
   const outOfStockMessage = "Error: no hay suficientes existencias para ";
+  const insufficientFoundsMessage = "Fondos insuficientes ";
+  const moneyAccepted = [1000,500,100,50,25]
   
   export default {
     components: {
@@ -58,8 +73,11 @@
         coffees: [],
         order: [],
         totalPaid: 0,
+        paymentWay: [0,0,0,0,0],
         outOfService: false,
-        status:"" 
+        status:"", 
+        cashChange:[],
+        cashChangeView: false
       };
     },
     methods: {
@@ -75,12 +93,14 @@
         },
 
         updateOrder() {
+          if(!this.outOfService && !this.cashChangeView){
             this.validateOrder();
             this.order = this.coffees.filter(coffee => coffee.quantity > 0);
             this.totalCost = this.order.reduce(
                 (total, coffee) => total + coffee.quantity * coffee.price,
                 0
             );
+          }
         },
         validateOrder(){
             this.status = "";
@@ -90,10 +110,78 @@
                     this.status = outOfStockMessage + `${coffee.name}`;
                 }
             });
+        },
+        addPayment(value){
+          if(!this.outOfService && !this.cashChangeView){
+           this.status = "";
+            this.totalPaid=this.totalPaid+value;
+            for (let i = 0; i<moneyAccepted.length; i ++){
+              if(value === moneyAccepted[i]){
+                this.paymentWay[i]++;
+              }
+            }   
+          }  
+        },
+        makePurchase(){ 
+          if(!this.outOfService && !this.cashChangeView){
+          this.status = "";
+          if(this.totalPaid < this.totalCost){
+            this.status = insufficientFoundsMessage;
+          }else{
+            const paymentData = {
+                  cashChange: this.totalPaid - this.totalCost,
+                  paymentWay: this.paymentWay, 
+                  coffeeId: this.order.map(item =>  item.id),
+                  coffeeQuantity: this.order.map(item => item.quantity),
+              };
+              axios
+                  .put(this.$backendAddress + "api/Payment", paymentData)
+                  .then((response) => {
+                      this.cashChange=response.data;
+                      this.cashChangeView = true;
+                      this.totalPaid = 0;
+                      this.totalCost = 0;
+                      this.order = [];
+                      this.paymentWay = [0,0,0,0,0];
+                      this.fetchCoffees(); 
+                      this.isOutOfService(); 
+                  })
+                  .catch((exception) => {
+                      this.totalPaid = 0;
+                      this.totalCost = 0;
+                      this.order = [];
+                      this.paymentWay = [0,0,0,0,0];
+                      this.fetchCoffees(); 
+                      this.isOutOfService();
+                      this.status = exception.response?.data?.message;
+                  });
+            }
+          }
+        },
+        isOutOfService(){
+          axios
+                .get(this.$backendAddress + "api/Payment")
+                .then((response) => {
+                    if(response.data === true){
+                      this.outOfService = true;
+                    }else{
+                      this.outOfService = false;
+                    }
+                })
+                .catch((exception) => {
+                  this.status=exception;
+                });   
+
+        },
+        takeChange(){
+          this.cashChangeView = false;
+          this.cashChange = [];
         }
+            
     },
     mounted() {
       this.fetchCoffees();
+      this.isOutOfService();
     },
   };
   </script>

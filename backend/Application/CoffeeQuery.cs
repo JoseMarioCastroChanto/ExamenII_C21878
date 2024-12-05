@@ -16,5 +16,9 @@ namespace backend.Application
         { 
             return _coffeeHandler.GetCoffees();
         }
+        public List<(int CoffeeId, int Available)> CheckCoffeeExistence(int [] coffeeIds)
+        {
+            return _coffeeHandler.CoffeeExistence(coffeeIds);
+        }
     }
 }
