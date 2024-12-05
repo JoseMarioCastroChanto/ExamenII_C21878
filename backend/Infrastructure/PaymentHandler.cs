@@ -31,7 +31,7 @@ namespace backend.Infrastructure
         public void UpdateChangeExistence(CashChangeModel change, int[] PaymentWay)
         {
             AddPaymentToFounds(PaymentWay);
-            SubstractCashChanegFromFounds(change);
+            SubstractCashChangeFromFunds(change);
         }
         private void AddPaymentToFounds( int[] PaymentWay)
         {
@@ -48,16 +48,18 @@ namespace backend.Infrastructure
             }
         }
 
-        private void SubstractCashChanegFromFounds(CashChangeModel change)
+        private void SubstractCashChangeFromFunds(CashChangeModel change)
+        {
+            for (int i = 0; i < change.MoneyValue.Length; i++)
             {
-                foreach (var key in change.CashChange)
-            {
-                int denomination = key.MoneyValue;
-                int quantity = key.Quantity; 
+                int denomination = change.MoneyValue[i];
+                int quantity = change.Quantity[i];
+
+                if (quantity == 0) continue;
 
                 if (moneyInventory.ContainsKey(denomination))
                 {
-                    moneyInventory[denomination] -= quantity; 
+                    moneyInventory[denomination] -= quantity;
                 }
             }
         }

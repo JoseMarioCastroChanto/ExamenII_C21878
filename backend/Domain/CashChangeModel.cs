@@ -2,6 +2,9 @@
 {
     public class CashChangeModel
     {
-        public List<(int MoneyValue, int Quantity)> CashChange { get; set; }
+        public int [] MoneyValue { get; set; } 
+        public int [] Quantity { get; set; }
+        public bool IsSuccessful { get; set; }
     }
+       
 }
