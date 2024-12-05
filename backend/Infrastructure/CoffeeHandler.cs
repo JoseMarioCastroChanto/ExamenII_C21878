@@ -19,5 +19,31 @@ namespace backend.Infrastructure
             return _coffees;
         }
 
+        public List<(int CoffeeId, int Available)> CoffeeExistence(int [] coffeeIds)
+        { 
+            var existingCoffees = _coffees.Where(c => coffeeIds.Contains(c.Id)).ToList();
+
+
+            if (existingCoffees.Count != coffeeIds.Length)
+            {   
+                return new List<(int CoffeeId, int Available)>();
+            }
+
+            return existingCoffees.Select(c => (c.Id, c.Available)).ToList();
+        }
+
+        public void UpdateCoffeeAvailability(int [] CoffeeId, int [] Quantity)
+        {
+            var index = 0;
+            foreach (var id in CoffeeId)
+            {
+                var coffee = _coffees.FirstOrDefault(c => c.Id == id);
+                coffee.Available -= Quantity[index];
+                index++;
+            }
+
+        }
+
     }
+
 }
